@@ -1,0 +1,30 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Parcel cache & build output
+.cache/
+dist/
+
+# Environment files (keep secrets out of Git!)
+.env
+.env.*.local
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# VS Code settings (optional, only if you don’t want to share your editor setup)
+.vscode/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
