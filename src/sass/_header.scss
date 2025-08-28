@@ -1,14 +1,22 @@
+@import 'base';
+
 .header {
   grid-area: head;
   background-color: $color-grey-light-1;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 2rem;
 
   &__logo {
     margin-left: 4rem;
     height: 4.6rem;
     display: block;
+
+    @media only screen and (max-width: $bp-medium) {
+      margin-left: 1.5rem;
+      height: 4rem;
+    }
   }
 }
 
@@ -43,7 +51,6 @@
 
     @media only screen and (max-width: $bp-medium) {
       width: auto;
-
       &::placeholder {
         color: white;
       }
@@ -53,6 +60,9 @@
   &__btn {
     font-weight: 600;
     font-family: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 }
 
@@ -81,10 +91,9 @@
     border: none;
     cursor: pointer;
     padding: 0 1.5rem;
-    transition: all 0.3s;
-
     display: flex;
     align-items: center;
+    transition: all 0.3s;
 
     svg {
       height: 2.4rem;
@@ -105,14 +114,14 @@
 }
 
 .bookmarks {
-  padding: 1rem 0;
   position: absolute;
-  // right: 0;
   right: -2.5rem;
+  top: 100%;
   z-index: 10;
   width: 40rem;
   background-color: #fff;
   box-shadow: 0 0.8rem 5rem 2rem rgba($color-grey-dark-1, 0.1);
+  padding: 1rem 0;
 
   visibility: hidden;
   opacity: 0;
@@ -120,20 +129,6 @@
 
   &__list {
     list-style: none;
-  }
-
-  &__field {
-    cursor: pointer;
-    padding: 0 4rem;
-
-    display: flex;
-    align-items: center;
-    height: 100%;
-    transition: all 0.3s;
-
-    &:hover {
-      background-color: $color-grey-light-2;
-    }
   }
 
   &:hover,

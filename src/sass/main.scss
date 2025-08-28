@@ -1,7 +1,22 @@
+// ============================
+// MAIN SCSS ENTRY
+// ============================
+
+// 1. Base variables, colors, and global resets
 @import 'base';
-@import 'components';
+
+// 2. Header / Navigation / Search
 @import 'header';
+
+// 3. Buttons, utilities, and common components
+@import 'components';
+
+// 4. Recipe layout and details
+@import 'recipe';
+
+// 5. Search results & previews
 @import 'preview';
 @import 'searchResults';
-@import 'recipe';
+
+// 6. Upload modal
 @import 'upload';

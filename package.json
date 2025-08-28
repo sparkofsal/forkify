@@ -1,16 +1,24 @@
 {
-  "name": "projecto-javascript-ii",
+  "name": "forkify",
   "version": "1.0.0",
-  "description": "",
+  "description": "Forkify recipe app - search and display recipes dynamically",
   "source": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "dev": "parcel index.html --open",
+    "build": "parcel build index.html --dist-dir dist",
+    "clean": "rm -rf .parcel-cache dist"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "forkify",
+    "recipes",
+    "javascript",
+    "parcel"
+  ],
+  "author": "Your Name",
   "license": "ISC",
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.15.4",
     "parcel": "^2.15.4"
   }
 }

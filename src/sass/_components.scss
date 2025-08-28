@@ -1,3 +1,6 @@
+@import 'base';
+
+// BUTTON BASE
 %btn {
   background-image: $gradient;
   border-radius: 10rem;
@@ -7,6 +10,7 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   transition: all 0.2s;
 
   &:hover {
@@ -22,9 +26,9 @@
   }
 }
 
+// MAIN BUTTON
 .btn {
   @extend %btn;
-
   padding: 1.5rem 4rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -36,25 +40,20 @@
   }
 }
 
+// SMALL BUTTON
 .btn--small {
-  &,
-  &:link,
-  &:visited {
-    @extend %btn;
+  @extend %btn;
+  font-size: 1.4rem;
+  padding: 1.25rem 2.25rem;
 
-    font-size: 1.4rem;
-    font-weight: 600;
-    padding: 1.25rem 2.25rem;
-    text-decoration: none;
-
-    svg {
-      height: 1.75rem;
-      width: 1.75rem;
-      fill: currentColor;
-    }
+  svg {
+    height: 1.75rem;
+    width: 1.75rem;
+    fill: currentColor;
   }
 }
 
+// INLINE BUTTON (pagination)
 .btn--inline {
   color: $color-primary;
   font-size: 1.3rem;
@@ -64,7 +63,6 @@
   padding: 0.8rem 1.2rem;
   border-radius: 10rem;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   transition: all 0.2s;
@@ -84,12 +82,9 @@
     color: $color-grad-2;
     background-color: $color-grey-light-2;
   }
-
-  &:focus {
-    outline: none;
-  }
 }
 
+// ROUND BUTTON (bookmark/save)
 .btn--round {
   background-image: $gradient;
   border-radius: 50%;
@@ -97,19 +92,13 @@
   cursor: pointer;
   height: 4.5rem;
   width: 4.5rem;
-  // margin-left: auto;
-  transition: all 0.2s;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s;
 
   &:hover {
     transform: scale(1.07);
-  }
-
-  &:focus {
-    outline: none;
   }
 
   svg {
@@ -119,6 +108,7 @@
   }
 }
 
+// TINY BUTTON (servings +/-)
 .btn--tiny {
   height: 2rem;
   width: 2rem;
@@ -133,17 +123,12 @@
     transition: all 0.3s;
   }
 
-  &:focus {
-    outline: none;
-  }
-
   &:hover svg {
     fill: $color-grad-2;
     transform: translateY(-1px);
   }
 
   &:active svg {
-    fill: $color-grad-2;
     transform: translateY(0);
   }
 
@@ -152,6 +137,7 @@
   }
 }
 
+// HEADINGS
 .heading--2 {
   font-size: 2rem;
   font-weight: 700;
@@ -159,14 +145,15 @@
   text-transform: uppercase;
   margin-bottom: 2.5rem;
   text-align: center;
-  // transform: skewY(-3deg);
 }
 
+// LINKS
 .link:link,
 .link:visited {
   color: $color-grey-dark-2;
 }
 
+// SPINNER
 .spinner {
   margin: 5rem auto;
   text-align: center;
@@ -180,22 +167,18 @@
 }
 
 @keyframes rotate {
-  0% {
-    transform: rotate(0);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
 }
 
+// MESSAGE & ERROR BLOCKS
 .message,
 .error {
   max-width: 40rem;
   margin: 0 auto;
   padding: 5rem 4rem;
-
   display: flex;
+  align-items: center;
 
   svg {
     height: 3rem;
