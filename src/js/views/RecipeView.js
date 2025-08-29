@@ -1,30 +1,36 @@
 // src/js/views/RecipeView.js
 
-import icons from '../../img/icons.svg';        // import icons for use in markup
-import * as fractional from 'fractional';       // robust import
-const { Fraction } = fractional;                // extract Fraction
+import icons from '../../img/icons.svg';
 
 /**
- * RecipeView class responsible for rendering a single recipe
+ * Fallback quantity formatter (no deps):
+ * - Rounds to the nearest eighth (⅛ steps) and prints unicode fractions.
+ * - Examples: 0.5 -> ½, 1.25 -> 1 ¼, 2.0 -> 2
  */
+function formatQuantity(q) {
+  if (q == null || q === '') return '';
+  const num = Number(q);
+  if (!Number.isFinite(num)) return String(q);
+
+  const whole = Math.trunc(num);
+  const eighths = Math.round((num - whole) * 8); // nearest 1/8
+  const glyph = { 0:'', 1:'⅛', 2:'¼', 3:'⅜', 4:'½', 5:'⅝', 6:'¾', 7:'⅞', 8:'' }[eighths] ?? '';
+
+  if (whole === 0) return glyph || '0';
+  return glyph ? `${whole} ${glyph}` : `${whole}`;
+}
+
 class RecipeView {
-  // Private fields
   #parentElement = document.querySelector('.recipe');
   #data;
 
-  /**
-   * Public method: render recipe into the DOM
-   */
   render(data) {
-    this.#data = data;                        // store the recipe data
-    const markup = this.#generateMarkup();    // generate markup
-    this.#clear();                            // clear container
+    this.#data = data;
+    const markup = this.#generateMarkup();
+    this.#clear();
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
-  /**
-   * Public method: render a spinner while waiting
-   */
   renderSpinner() {
     const markup = `
       <div class="spinner">
@@ -35,12 +41,10 @@ class RecipeView {
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
-  // Private method: clear container
   #clear() {
     this.#parentElement.innerHTML = '';
   }
 
-  // Private method: generate recipe HTML
   #generateMarkup() {
     return `
       <figure class="recipe__fig">
@@ -70,11 +74,7 @@ class RecipeView {
               <li class="recipe__ingredient">
                 <svg class="recipe__icon"><use href="${icons}#icon-check"></use></svg>
                 <div class="recipe__quantity">
-                  ${
-                    ing.quantity
-                      ? new Fraction(ing.quantity).toString()
-                      : ''
-                  }
+                  ${ing.quantity !== undefined && ing.quantity !== null ? formatQuantity(ing.quantity) : ''}
                 </div>
                 <div class="recipe__description">
                   <span class="recipe__unit">${ing.unit ?? ''}</span>
@@ -102,5 +102,4 @@ class RecipeView {
   }
 }
 
-// Export a singleton instance
 export default new RecipeView();
