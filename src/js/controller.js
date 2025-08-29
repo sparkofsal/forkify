@@ -1,45 +1,17 @@
-// ─────────────────────────────────────────────────────────────
+// src/js/controller.js
+
 // Assets
-// ─────────────────────────────────────────────────────────────
-import icons from '../img/icons.svg';   // SVG sprite (Parcel will rewrite path)
-import '../sass/main.scss';             // Global styles
+import icons from '../img/icons.svg';
+import '../sass/main.scss';
 
-// ─────────────────────────────────────────────────────────────
-// DOM cache (query once, reuse)
-// ─────────────────────────────────────────────────────────────
-const els = {
-  recipe: document.querySelector('.recipe'),
-  resultsList: document.querySelector('.results'),
-  searchForm: document.querySelector('.search'),
-  searchField: document.querySelector('.search__field'),
-};
+// Import everything as "model"
+import * as model from './model.js';
 
-// ─────────────────────────────────────────────────────────────
-// Utilities
-// ─────────────────────────────────────────────────────────────
+// DOM cache
+const recipeContainer = document.querySelector('.recipe');
 
-/**
- * Reject after s seconds so fetches don’t hang forever.
- */
-const timeout = s =>
-  new Promise((_, reject) =>
-    setTimeout(() => reject(new Error(`Request took too long! Timeout after ${s} second(s)`)), s * 1000)
-  );
-
-/**
- * Fetch JSON with basic error handling + timeout (senior-dev pattern).
- */
-const fetchJSON = async (url, seconds = 10) => {
-  const res = await Promise.race([fetch(url), timeout(seconds)]);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  return res.json();
-};
-
-/**
- * Render a spinner inside a container.
- */
+// View helpers
 const renderSpinner = parentEl => {
-  if (!parentEl) throw new Error('renderSpinner called without a valid parentEl');
   const markup = `
     <div class="spinner">
       <svg><use href="${icons}#icon-loader"></use></svg>
@@ -49,9 +21,6 @@ const renderSpinner = parentEl => {
   parentEl.insertAdjacentHTML('afterbegin', markup);
 };
 
-/**
- * Render a user-friendly error box.
- */
 const renderError = (parentEl, message = 'Something went wrong 😔') => {
   const markup = `
     <div class="error">
@@ -63,14 +32,6 @@ const renderError = (parentEl, message = 'Something went wrong 😔') => {
   parentEl.insertAdjacentHTML('afterbegin', markup);
 };
 
-// ─────────────────────────────────────────────────────────────
-// Renderers
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Render the full recipe view.
- * Assumes a normalized recipe object (mapped fields).
- */
 const renderRecipe = recipe => {
   const markup = `
     <figure class="recipe__fig">
@@ -123,119 +84,32 @@ const renderRecipe = recipe => {
       </a>
     </div>
   `;
-  els.recipe.innerHTML = '';
-  els.recipe.insertAdjacentHTML('afterbegin', markup);
+  recipeContainer.innerHTML = '';
+  recipeContainer.insertAdjacentHTML('afterbegin', markup);
 };
 
 /**
- * Render the search results list (left column).
- * `recipes` is the array from search endpoint (raw items have image_url/title/publisher/id).
+ * Controller: read id from hash, ask model to load it, then render view
  */
-const renderResults = recipes => {
-  const markup = recipes
-    .map(
-      r => `
-      <li class="preview" data-id="${r.id}">
-        <a class="preview__link" href="#">
-          <figure class="preview__fig">
-            <img src="${r.image_url}" alt="${r.title}" />
-          </figure>
-          <div class="preview__data">
-            <h4 class="preview__title">${r.title}</h4>
-            <p class="preview__publisher">${r.publisher}</p>
-          </div>
-        </a>
-      </li>`
-    )
-    .join('');
-
-  els.resultsList.innerHTML = '';
-  els.resultsList.insertAdjacentHTML('afterbegin', markup);
-};
-
-// ─────────────────────────────────────────────────────────────
-// Controllers
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Controller: Run a search based on the form input, then render results.
- */
-const controlSearch = async e => {
-  e.preventDefault();
-
-  // 1) Read and validate query
-  const query = els.searchField.value.trim();
-  if (!query) return;
-
+const controlRecipe = async () => {
   try {
-    // 2) UI: spinner in results list
-    renderSpinner(els.resultsList);
+    const id = window.location.hash.slice(1);
+    if (!id) return;
 
-    // 3) Fetch results
-    const data = await fetchJSON(`https://forkify-api.herokuapp.com/api/v2/recipes?search=${query}`);
+    renderSpinner(recipeContainer);
 
-    // 4) Guard: empty results
-    if (!data?.data?.recipes?.length) {
-      renderError(els.resultsList, `No results for "${query}". Try another keyword.`);
-      return;
-    }
+    // ii) await model.loadRecipe(id)
+    await model.loadRecipe(id);
 
-    // 5) Render list
-    renderResults(data.data.recipes);
-  } catch (err) {
-    console.error(err);
-    renderError(els.resultsList, err.message);
-  }
-};
+    // iii) destructure from model.state
+    const { recipe } = model.state;
 
-/**
- * Controller: Load a single recipe by id and render it.
- */
-const controlRecipe = async id => {
-  if (!id) return;
-
-  try {
-    // 1) UI: spinner in recipe area
-    renderSpinner(els.recipe);
-
-    // 2) Fetch single recipe
-    const data = await fetchJSON(`https://forkify-api.herokuapp.com/api/v2/recipes/${id}`);
-
-    // 3) Normalize response -> UI model
-    let { recipe } = data.data;
-    recipe = {
-      id: recipe.id,
-      title: recipe.title,
-      publisher: recipe.publisher,
-      sourceUrl: recipe.source_url,
-      image: recipe.image_url,
-      servings: recipe.servings,
-      cookTime: recipe.cooking_time,
-      ingredients: recipe.ingredients,
-    };
-
-    // 4) Render
     renderRecipe(recipe);
   } catch (err) {
     console.error(err);
-    renderError(els.recipe, err.message);
+    renderError(recipeContainer, err.message);
   }
 };
 
-// ─────────────────────────────────────────────────────────────
-// Event listeners (init)
-// ─────────────────────────────────────────────────────────────
-
-// Submit search form -> fetch & show results
-els.searchForm.addEventListener('submit', controlSearch);
-
-// Click a result -> load its recipe
-els.resultsList.addEventListener('click', e => {
-  const li = e.target.closest('.preview');
-  if (!li) return;
-  const id = li.dataset.id;
-  controlRecipe(id);
-});
-
-// NOTE: We intentionally DO NOT auto-load any recipe on startup.
-// The page will show the default message until the user searches.
+// Init: hashchange + load
+['hashchange', 'load'].forEach(ev => window.addEventListener(ev, controlRecipe));
