@@ -1,7 +1,8 @@
 // src/js/views/RecipeView.js
 
-import icons from '../../img/icons.svg';       // import icons for use in markup
-import { Fraction } from 'fractional';        // for converting 0.5 -> 1/2 etc.
+import icons from '../../img/icons.svg';        // import icons for use in markup
+import * as fractional from 'fractional';       // robust import
+const { Fraction } = fractional;                // extract Fraction
 
 /**
  * RecipeView class responsible for rendering a single recipe
