@@ -1,42 +1,18 @@
 // src/js/views/ResultsView.js
+import View from './View.js';
 import icons from '../../img/icons.svg';
 
-class ResultsView {
-  #parentElement = document.querySelector('.results');
+class ResultsView extends View {
+  _parentElement = document.querySelector('.results');
+  _errorMessage = 'No recipes found for your query';
+  _message = '';
 
-  render(data) {
+  _generateMarkup() {
     // data is an array of results
-    const markup = data.map(this.#generateMarkupPreview).join('');
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
+    return this._data.map(this._generateMarkupPreview).join('');
   }
 
-  renderSpinner() {
-    const markup = `
-      <div class="spinner">
-        <svg><use href="${icons}#icon-loader"></use></svg>
-      </div>
-    `;
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  renderError(message = 'No results found. Try another keyword.') {
-    const markup = `
-      <div class="error">
-        <div><svg><use href="${icons}#icon-alert-triangle"></use></svg></div>
-        <p>${message}</p>
-      </div>
-    `;
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  #clear() {
-    this.#parentElement.innerHTML = '';
-  }
-
-  #generateMarkupPreview(result) {
+  _generateMarkupPreview(result) {
     return `
       <li class="preview" data-id="${result.id}">
         <a class="preview__link" href="#${result.id}">
@@ -46,6 +22,7 @@ class ResultsView {
           <div class="preview__data">
             <h4 class="preview__title">${result.title}</h4>
             <p class="preview__publisher">${result.publisher}</p>
+            <!-- (If your HTML includes user-generated badge, keep it but WITHOUT preview__link--active) --> 
           </div>
         </a>
       </li>
