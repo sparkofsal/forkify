@@ -1,105 +1,63 @@
 // src/js/views/RecipeView.js
-
 import icons from '../../img/icons.svg';
 
-/**
- * Fallback quantity formatter (no deps):
- * - Rounds to the nearest eighth (⅛ steps) and prints unicode fractions.
- * - Examples: 0.5 -> ½, 1.25 -> 1 ¼, 2.0 -> 2
- */
-function formatQuantity(q) {
-  if (q == null || q === '') return '';
-  const num = Number(q);
-  if (!Number.isFinite(num)) return String(q);
-
-  const whole = Math.trunc(num);
-  const eighths = Math.round((num - whole) * 8); // nearest 1/8
-  const glyph = { 0:'', 1:'⅛', 2:'¼', 3:'⅜', 4:'½', 5:'⅝', 6:'¾', 7:'⅞', 8:'' }[eighths] ?? '';
-
-  if (whole === 0) return glyph || '0';
-  return glyph ? `${whole} ${glyph}` : `${whole}`;
-}
+// ... keep your existing code (formatQuantity, class, etc.)
 
 class RecipeView {
   #parentElement = document.querySelector('.recipe');
   #data;
 
-  render(data) {
-    this.#data = data;
-    const markup = this.#generateMarkup();
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
+  // Default UI messages
+  _errorMessage = 'We could not find that recipe. Please try another one!';
+  _message = 'Success!';
+
+  render(data) { /* ... as you already have ... */ }
+  renderSpinner() { /* ... as you already have ... */ }
+
+  /**
+   * Publisher side of pub/sub: the view owns DOM events and
+   * notifies the controller via the handler you pass in.
+   */
+  addHandlerRender(handler) {
+    ['hashchange', 'load'].forEach(ev =>
+      window.addEventListener(ev, handler)
+    );
   }
 
-  renderSpinner() {
+  /**
+   * Show a user-friendly error box inside the view.
+   */
+  renderError(message = this._errorMessage) {
     const markup = `
-      <div class="spinner">
-        <svg><use href="${icons}#icon-loader"></use></svg>
+      <div class="error">
+        <div>
+          <svg><use href="${icons}#icon-alert-triangle"></use></svg>
+        </div>
+        <p>${message}</p>
       </div>
     `;
     this.#clear();
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
-  #clear() {
-    this.#parentElement.innerHTML = '';
-  }
-
-  #generateMarkup() {
-    return `
-      <figure class="recipe__fig">
-        <img src="${this.#data.image}" alt="${this.#data.title}" class="recipe__img" />
-        <h1 class="recipe__title"><span>${this.#data.title}</span></h1>
-      </figure>
-
-      <div class="recipe__details">
-        <div class="recipe__info">
-          <svg class="recipe__info-icon"><use href="${icons}#icon-clock"></use></svg>
-          <span class="recipe__info-data recipe__info-data--minutes">${this.#data.cookTime}</span>
-          <span class="recipe__info-text">minutes</span>
+  /**
+   * Show a generic success/info message (smiley icon).
+   */
+  renderMessage(message = this._message) {
+    const markup = `
+      <div class="message">
+        <div>
+          <svg><use href="${icons}#icon-smile"></use></svg>
         </div>
-        <div class="recipe__info">
-          <svg class="recipe__info-icon"><use href="${icons}#icon-users"></use></svg>
-          <span class="recipe__info-data recipe__info-data--people">${this.#data.servings}</span>
-          <span class="recipe__info-text">servings</span>
-        </div>
-      </div>
-
-      <div class="recipe__ingredients">
-        <h2 class="heading--2">Recipe ingredients</h2>
-        <ul class="recipe__ingredient-list">
-          ${this.#data.ingredients
-            .map(ing => {
-              return `
-              <li class="recipe__ingredient">
-                <svg class="recipe__icon"><use href="${icons}#icon-check"></use></svg>
-                <div class="recipe__quantity">
-                  ${ing.quantity !== undefined && ing.quantity !== null ? formatQuantity(ing.quantity) : ''}
-                </div>
-                <div class="recipe__description">
-                  <span class="recipe__unit">${ing.unit ?? ''}</span>
-                  ${ing.description}
-                </div>
-              </li>`;
-            })
-            .join('')}
-        </ul>
-      </div>
-
-      <div class="recipe__directions">
-        <h2 class="heading--2">How to cook it</h2>
-        <p class="recipe__directions-text">
-          This recipe was carefully designed and tested by
-          <span class="recipe__publisher">${this.#data.publisher}</span>. Please check out
-          directions at their website.
-        </p>
-        <a class="btn--small recipe__btn" href="${this.#data.sourceUrl}" target="_blank" rel="noreferrer">
-          <span>Directions</span>
-          <svg class="search__icon"><use href="${icons}#icon-arrow-right"></use></svg>
-        </a>
+        <p>${message}</p>
       </div>
     `;
+    this.#clear();
+    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
+
+  #clear() { /* ... as you already have ... */ }
+  #generateMarkup() { /* ... as you already have ... */ }
 }
 
 export default new RecipeView();
