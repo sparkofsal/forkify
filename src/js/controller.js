@@ -4,6 +4,7 @@ import * as model from './model.js';
 import recipeView from './views/RecipeView.js';
 import searchView from './views/SearchView.js';
 import resultsView from './views/ResultsView.js';
+import paginationView from './views/PaginationView.js'; // 👈 NEW
 
 const controlRecipes = async () => {
   try {
@@ -20,28 +21,36 @@ const controlRecipes = async () => {
 
 const controlSearchResults = async () => {
   try {
-    // UI gets the query from the view (pub/sub)
     const query = searchView.getQuery();
     if (!query) return;
 
-    // Spinner in results area
     resultsView.renderSpinner();
 
-    // Load search results into state (model)
     await model.loadSearchResults(query);
 
-    // Render results (whole array; we’ll paginate later)
-    resultsView.render(model.state.search.results);
+    // 👇 render first page of results
+    resultsView.render(model.getSearchResultsPage());
+
+    // 👇 render pagination controls (pass whole search state)
+    paginationView.render(model.state.search);
   } catch (err) {
     resultsView.renderError(err.message);
   }
 };
 
-const init = () => {
-  // Recipe rendering events owned by the view
-  recipeView.addHandlerRender(controlRecipes);
+// 👇 NEW: respond to next/prev clicks
+const controlPagination = (goToPage) => {
+  // 1) Render NEW results
+  resultsView.render(model.getSearchResultsPage(goToPage));
+  // 2) Render NEW buttons
+  paginationView.render(model.state.search);
+};
 
-  // Search submit owned by the view
+const init = () => {
+  recipeView.addHandlerRender(controlRecipes);
   searchView.addHandlerSearch(controlSearchResults);
+
+  // esta parte sirve para que al hacer click en next o prev se ejecute la funcion controlPagination
+  paginationView.addHandlerClick(controlPagination);
 };
 init();

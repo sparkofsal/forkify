@@ -1,4 +1,5 @@
-import { API_URL } from './config.js';
+// src/js/model.js
+import { API_URL, RES_PER_PAGE } from './config.js';
 import { getJSON } from './helpers.js';
 
 export const state = {
@@ -6,6 +7,8 @@ export const state = {
   search: {
     query: '',
     results: [],
+    page: 1,                 // 👈 new
+    resultsPerPage: RES_PER_PAGE, // 👈 new
   },
   bookmarks: [],
 };
@@ -33,6 +36,7 @@ export const loadSearchResults = async function (query) {
   try {
     const data = await getJSON(`${API_URL}?search=${query}`);
     state.search.query = query;
+    state.search.page = 1; // reset to first page on new search
     state.search.results = data.data.recipes.map(rec => ({
       id: rec.id,
       title: rec.title,
@@ -43,4 +47,12 @@ export const loadSearchResults = async function (query) {
     console.log(`${err} 💥💥💥💥`);
     throw err;
   }
+};
+
+// 👇 NEW: slice out one page of results
+export const getSearchResultsPage = function (page = state.search.page) {
+  state.search.page = page; // keep source of truth in state
+  const start = (page - 1) * state.search.resultsPerPage;
+  const end = page * state.search.resultsPerPage;
+  return state.search.results.slice(start, end);
 };
